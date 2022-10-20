@@ -1,17 +1,19 @@
 package test;
 
 import main.LineData;
+import main.LineNameParser;
 import main.LineStatus;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.Assert;
 import org.junit.Before;
-import main.LineNameParser;
-import org.testng.annotations.Test;;
+
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
+
+;
 
 public class LineNameParserTest {
 
@@ -30,7 +32,7 @@ public class LineNameParserTest {
 
     }
 
-    @Test
+    @org.junit.Test
     public void createLineDataFromElement_giveIncorrectFormatElem(){
         Element incorrectFormatElem = UtilityTestCreateElement.createInvalidFormatLineNumberElement();
         LineStatus exampleStatus= LineStatus.CHANGING_TIMETABLE;
