@@ -25,6 +25,15 @@ public class DiskWebPageAccess {
 
     }
 
+    public static Document GetPageFromPath(String path) throws IOException {
+        path=path.split("\\?")[0];
+
+        String  pathWebsiteMainPageMPK=PropertiesServices.getProperties().getPropertyAsString("BASE_PATH_ACESS");;
+        File fileMainPage = new  File(pathWebsiteMainPageMPK+"/"+path);
+        Document   doc= Jsoup.parse(fileMainPage, "UTF-8", "");
+        return doc;
+    }
+
 
 
 

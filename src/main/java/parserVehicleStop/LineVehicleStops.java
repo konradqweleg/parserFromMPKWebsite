@@ -6,7 +6,7 @@ public class LineVehicleStops {
     private LineStatus line;
     private VehicleStopForLine firstDirection;
     private VehicleStopForLine secondDirection;
-    
+
     public LineVehicleStops(LineStatus line,VehicleStopForLine first,VehicleStopForLine second){
         this.line=line;
         firstDirection=first;
