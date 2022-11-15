@@ -12,57 +12,71 @@ import java.util.Optional;
 
 public class FindLinesTimeTable {
 
-
   private static final String VEHICLE_STOP_FOR_LINE_CSS="table div div tbody tr td";
 
+  private String removeNoNeedNumberAndSpaceStartFromNameVehicleStop(String nameVehicleStopRaw){
+      return nameVehicleStopRaw.replaceAll(Utility.REGEX_NUMBER2,Utility.REGEX_NO_CHAR).trim();
+  }
+
+  private Optional<Integer> getPotentialNumberVehicleStop(String nameVehicleStopRaw){
+      boolean isNameVehicleStopContainsNumberVehicleStop= nameVehicleStopRaw.matches(Utility.REGEX_IS_TEXT_CONTAINS_NUMBER);
+
+      if(isNameVehicleStopContainsNumberVehicleStop) {
+          String potentialVehicleStopNumber=nameVehicleStopRaw.replaceAll(Utility.REGEX_VISIBLE_CHAR, Utility.REGEX_NO_CHAR);
+          if (Utility.isNumeric(potentialVehicleStopNumber)) {
+              return  Optional.of(Integer.parseInt(potentialVehicleStopNumber));
+          }
+      }
+
+      return Optional.empty();
+  }
+
+
+
+
+  private boolean isTextContainsVehicleStopName(String potentialNameVehicle){
+      int NO_ELEM_SIZE=0;
+      boolean isHaveContains=(potentialNameVehicle.length()>NO_ELEM_SIZE);
+      boolean isContainNameVehicleStop=(potentialNameVehicle.split(Utility.REGEX_NUMBER).length>NO_ELEM_SIZE);
+
+      return isHaveContains && isContainNameVehicleStop;
+  }
 
 
   private Optional<VehicleStopNumber> getVehicleStopPointFromElementIfExists(Element element,int elemNumber){
-      int NO_ELEM_SIZE=0;
 
-      boolean isHaveContains=(element.text().length()>NO_ELEM_SIZE);
-      if(isHaveContains){
-
-        boolean isContainNameVehicleStop=(element.text().split(Utility.REGEX_NUMBER).length>0);
-
-        if(isContainNameVehicleStop){
-            String nameVehicleStop=element.text().split("(?<=\\\\D)(?=\\\\d)")[0];
-            Integer numberBusStop=null;
-            boolean isHaveSpaceBeforePotentialNumber= element.text().split(Utility.REGEX_SPACE).length>0;
-
-            if(isHaveSpaceBeforePotentialNumber){
-                String potentialVehicleNumber=element.text().split(Utility.REGEX_SPACE)[element.text().split(Utility.REGEX_SPACE).length-1];
-                if(Utility.isNumeric(potentialVehicleNumber)){
-                     numberBusStop=Integer.parseInt(potentialVehicleNumber);
-                }
-            }
-            return Optional.of(new VehicleStopNumber(new VehicleStop(nameVehicleStop,numberBusStop,""),elemNumber));
-
-
+        if(isTextContainsVehicleStopName(element.text())){
+            String nameVehicleStopRaw=element.text();
+            String nameVehicleStop=removeNoNeedNumberAndSpaceStartFromNameVehicleStop(nameVehicleStopRaw);
+            String defaultDescription="";
+            Optional<Integer> numberBusStop=getPotentialNumberVehicleStop(nameVehicleStopRaw);
+            return Optional.of(new VehicleStopNumber(new VehicleStop(nameVehicleStop,numberBusStop,defaultDescription),elemNumber));
         }
-
-
-      }
 
       return Optional.empty();
   }
   public List<VehicleStopNumber> getVehicleStopsForLineFirstDirection(LineData lineData, Document pageLine){
       List<VehicleStopNumber> vehicleStopsList=new ArrayList<>();
       Elements vehicleStops=pageLine.select(VEHICLE_STOP_FOR_LINE_CSS);
-      int numberVehicleStopOnList=1;
+      int START_ITERATION_VEHICLE_STOP_NUMBER=1;
+      int STEP_ITERATION_VEHICLE_STOP_NUMBER=1;
+      int numberVehicleStopOnList=START_ITERATION_VEHICLE_STOP_NUMBER;
 
-      for(Element vehicleStopPoint :vehicleStops){
-          if(vehicleStopPoint.text().length()>0) {
-              vehicleStopsList.add(new VehicleStopNumber(new VehicleStop(vehicleStopPoint.text().split("(?<=\\\\D)(?=\\\\d)")[0],Integer.parseInt(vehicleStopPoint.text().split(" ")[vehicleStopPoint.text().split(" ").length-1]),""),numberVehicleStopOnList));
-              numberVehicleStopOnList+=1;
+      for(Element vehicleStopPointElem :vehicleStops){
+
+          Optional<VehicleStopNumber> vehicleStopNumber= getVehicleStopPointFromElementIfExists(vehicleStopPointElem,numberVehicleStopOnList);
+          if(vehicleStopNumber.isPresent()){
+              vehicleStopsList.add(vehicleStopNumber.get());
+              numberVehicleStopOnList+=STEP_ITERATION_VEHICLE_STOP_NUMBER;
           }
+
       }
 
-      for(VehicleStopNumber a:vehicleStops){
+      for(VehicleStopNumber a:vehicleStopsList){
           System.out.println(a);
       }
 
-      return vehicleStops;
+      return vehicleStopsList;
   }
 
 

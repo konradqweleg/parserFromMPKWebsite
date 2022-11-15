@@ -25,6 +25,10 @@ public class VehicleStopNumber {
          sequenceNumber=seqNum;
     }
 
+    public  VehicleStopNumber(){
+
+    }
+
     @Override
     public String toString() {
         return "VehicleStopNumber{" +
@@ -32,4 +36,7 @@ public class VehicleStopNumber {
                 ", sequenceNumber=" + sequenceNumber +
                 '}';
     }
+
+
+
 }

@@ -1,11 +1,13 @@
 package parserVehicleStop;
 
+import java.util.Optional;
+
 public class VehicleStop {
     private String name;
-    private int number;
+    private Optional<Integer> number;
     private  String description;
 
-    public VehicleStop(String name, int number, String description) {
+    public VehicleStop(String name, Optional<Integer> number, String description) {
         this.name = name;
         this.number = number;
         this.description = description;
@@ -19,11 +21,11 @@ public class VehicleStop {
         this.name = name;
     }
 
-    public int getNumber() {
+    public Optional<Integer> getNumber() {
         return number;
     }
 
-    public void setNumber(int number) {
+    public void setNumber(Optional number) {
         this.number = number;
     }
 
@@ -33,5 +35,14 @@ public class VehicleStop {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        return "VehicleStop{" +
+                "name='" + name + '\'' +
+                ", number=" + number +
+                ", description='" + description + '\'' +
+                '}';
     }
 }
