@@ -15,6 +15,7 @@ public class FindLinesTimeTable {
   private static final String VEHICLE_STOP_FOR_LINE_CSS="table div div tbody tr td";
 
   private String removeNoNeedNumberAndSpaceStartFromNameVehicleStop(String nameVehicleStopRaw){
+
       return nameVehicleStopRaw.replaceAll(Utility.REGEX_NUMBER2,Utility.REGEX_NO_CHAR).trim();
   }
 
@@ -22,7 +23,7 @@ public class FindLinesTimeTable {
       boolean isNameVehicleStopContainsNumberVehicleStop= nameVehicleStopRaw.matches(Utility.REGEX_IS_TEXT_CONTAINS_NUMBER);
 
       if(isNameVehicleStopContainsNumberVehicleStop) {
-          String potentialVehicleStopNumber=nameVehicleStopRaw.replaceAll(Utility.REGEX_VISIBLE_CHAR, Utility.REGEX_NO_CHAR);
+          String potentialVehicleStopNumber=UtilityFormat.removeAllCharacterDiffrendToNumber(nameVehicleStopRaw);
           if (Utility.isNumeric(potentialVehicleStopNumber)) {
               return  Optional.of(Integer.parseInt(potentialVehicleStopNumber));
           }
@@ -55,13 +56,14 @@ public class FindLinesTimeTable {
 
       return Optional.empty();
   }
-  public List<VehicleStopNumber> getVehicleStopsForLineFirstDirection(LineData lineData, Document pageLine){
+  public List<VehicleStopNumber> getVehicleStopsForLineFirstDirection( Document pageLine){
       List<VehicleStopNumber> vehicleStopsList=new ArrayList<>();
       Elements vehicleStops=pageLine.select(VEHICLE_STOP_FOR_LINE_CSS);
       int START_ITERATION_VEHICLE_STOP_NUMBER=1;
       int STEP_ITERATION_VEHICLE_STOP_NUMBER=1;
       int numberVehicleStopOnList=START_ITERATION_VEHICLE_STOP_NUMBER;
 
+      System.out.println(vehicleStops.size());
       for(Element vehicleStopPointElem :vehicleStops){
 
           Optional<VehicleStopNumber> vehicleStopNumber= getVehicleStopPointFromElementIfExists(vehicleStopPointElem,numberVehicleStopOnList);
@@ -79,14 +81,31 @@ public class FindLinesTimeTable {
       return vehicleStopsList;
   }
 
+  public List<VehicleStopNumber> getVehicleStopsForLineSecondDirection(Document pageLine) throws IOException {
+      String CSS_SECOND_DIRECTION_ELEM="td tbody tr td div[style=' text-align: left; font-size: 20px; white-space: nowrap; padding: 10px; border: 1px solid blue; border-radius: 10px;'] a";
+      Elements links=pageLine.select(CSS_SECOND_DIRECTION_ELEM);
+
+
+      List<String> linksElement=new ArrayList<>();
+      for(Element elem:links){
+          System.out.println(elem.attr("href"));
+          linksElement.add(elem.attr("href"));
+      }
+
+      return getVehicleStopsForLineFirstDirection(DiskWebPageAccess.GetPageFromPath(linksElement.get(1)));
+  }
+
 
   public static void main(String[]args) throws IOException {
       FindLinksLine xa=new FindLinksLine();
       Optional<LinkLineTimeTable> tb=xa.findLinkToTimetableForNumberLine(new LineData(137,LineStatus.ORDINARY), DiskWebPageAccess.getMainPageDocument());
       System.out.println(tb.get().getLink());
 
+
+
       FindLinesTimeTable x=new FindLinesTimeTable();
-      x.getVehicleStopsForLineFirstDirection(new LineData(137, LineStatus.ORDINARY), DiskWebPageAccess.GetPageFromPath(tb.get().getLink()));
+      x.getVehicleStopsForLineSecondDirection(DiskWebPageAccess.GetPageFromPath(tb.get().getLink()));
+      x.getVehicleStopsForLineFirstDirection( DiskWebPageAccess.GetPageFromPath(tb.get().getLink()));
   }
 
 
